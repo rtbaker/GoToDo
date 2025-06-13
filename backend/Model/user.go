@@ -18,7 +18,7 @@ type PasswordUpdate struct {
 	OldPassword string `json:"updatePassword"`
 }
 
-// Things we can do to a user.
+// Things we can do to a user, to be implemented by database.
 type UserService interface {
 	// Get a user by id
 	FindUserByID(ctx context.Context, id int) (*User, error)

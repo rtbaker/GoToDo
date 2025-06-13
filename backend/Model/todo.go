@@ -22,7 +22,7 @@ type ToDoUpdate struct {
 	Completed   bool   `json:"completed"`
 }
 
-// Things we can do to a ToDo
+// Things we can do to a ToDo, to be implemented by database.
 type ToDoService interface {
 	// Find a ToDo by id.
 	FindToDoByID(ctx context.Context, id int) (*ToDo, error)

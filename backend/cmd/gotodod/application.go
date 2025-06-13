@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/rtbaker/GoToDo/http"
 	"github.com/spf13/viper"
 )
 
@@ -20,6 +21,7 @@ type Application struct {
 	Debug      bool
 	ConfigPath string
 	Config     Config
+	HTTPServer *http.Server
 }
 
 func NewApplication() *Application {
@@ -28,11 +30,26 @@ func NewApplication() *Application {
 	}
 }
 
-func (*Application) Run(ctx context.Context) error {
+func (a *Application) Run(ctx context.Context) error {
+	// Setup an HTTP Server
+	a.HTTPServer = http.NewServer()
+	a.HTTPServer.Host = a.Config.Http.Host
+	a.HTTPServer.Port = a.Config.Http.Port
+
+	err := a.HTTPServer.Run()
+	if err != nil {
+		return fmt.Errorf("error running http server: %s", err)
+	}
+
 	return nil
 }
 
-func (*Application) Close(ctx context.Context) error {
+func (a *Application) Close() error {
+	if a.HTTPServer != nil {
+		if err := a.HTTPServer.Close(); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -65,28 +82,36 @@ func (a *Application) LoadConfig(args []string) error {
 		return fmt.Errorf("no APP_ENV var available")
 	}
 
-	v := viper.NewWithOptions(viper.KeyDelimiter("::"))
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
-	v.SetConfigName(env)
-	v.SetConfigType("yaml")
-	v.AddConfigPath(a.ConfigPath)
+	viper.SetConfigName(env)
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath(a.ConfigPath)
 
-	v.AutomaticEnv()
+	viper.AutomaticEnv()
 
-	err := v.ReadInConfig()
+	err := viper.ReadInConfig()
 	if err != nil {
 		return fmt.Errorf("fatal error config file: %s", err)
 	}
 
 	config := NewConfig()
-	err = v.Unmarshal(&config)
+
+	// Do this so we can use ENV vars in the yaml
+	for _, k := range viper.AllKeys() {
+		v := viper.GetString(k)
+		viper.Set(k, os.ExpandEnv(v))
+	}
+
+	err = viper.Unmarshal(&config)
 	if err != nil {
 		return fmt.Errorf("cannot unmarshall config: %s", err)
 	}
 
 	a.Config = config
 
-	a.DebugMessage("database DSN is: %s", a.Config.DbConfig.DSN)
+	a.DebugMessage("database DSN is: %s", a.Config.Db.DSN)
+	a.DebugMessage("http listen on: \"%s:%d\"", a.Config.Http.Host, a.Config.Http.Port)
 
 	return nil
 }

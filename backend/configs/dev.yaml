@@ -1,2 +1,5 @@
 database:
-  dsn: "${ENV}/somedsn"
+  dsn: "${APP_ENV}/somedsn"
+
+http:
+  port: 9090
