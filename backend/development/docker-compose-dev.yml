@@ -1,0 +1,18 @@
+services:
+  mysql8:
+    image: mysql:8.4
+    container_name: gotodo-mysql8
+    command: --mysql-native-password=ON
+    restart: unless-stopped
+  #  volumes:
+  #    - "./mysql/db:/var/lib/mysql"            # using ~ as . is shared with host and not writable
+  #    - "./mysql/backups:/tmp/db-backups"
+  #    - "./mysql/conf:/etc/mysql/conf.d"
+  #    - "./mysql/logs:/var/log/mysql"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: gotodo
+      MYSQL_USER: gotodo
+      MYSQL_PASSWORD: gotodo
+    ports:
+      - "33061:3306"
