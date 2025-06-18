@@ -1,5 +1,6 @@
 database:
-  dsn: "${APP_ENV}/somedsn"
+  driver: mysql
+  dsn: gotodo:gotodo@tcp(127.0.0.1:33061)/gotodo
 
 http:
   port: 9090

@@ -6,7 +6,8 @@ import (
 )
 
 type ToDo struct {
-	ID          int       `json:"id"`
+	ID          int64     `json:"id"`
+	UserId      int64     `json:"userId"`
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
 	Priority    int       `json:"priority"`
@@ -26,6 +27,9 @@ type ToDoUpdate struct {
 type ToDoService interface {
 	// Find a ToDo by id.
 	FindToDoByID(ctx context.Context, id int) (*ToDo, error)
+
+	// Find a users ToDo's
+	FindByUser(ctx context.Context, userId int) ([]*ToDo, error)
 
 	// Create a new ToDo
 	CreateToDo(ctx context.Context, todo *ToDo) error

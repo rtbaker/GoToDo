@@ -2,12 +2,14 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/rtbaker/GoToDo/database/mysql"
 	"github.com/rtbaker/GoToDo/http"
 	"github.com/spf13/viper"
 )
@@ -22,6 +24,7 @@ type Application struct {
 	ConfigPath string
 	Config     Config
 	HTTPServer *http.Server
+	DB         *sql.DB
 }
 
 func NewApplication() *Application {
@@ -31,6 +34,9 @@ func NewApplication() *Application {
 }
 
 func (a *Application) Run(ctx context.Context) error {
+	// Connect to the DB
+	a.getDBConnection()
+
 	// Setup an HTTP Server
 	a.HTTPServer = http.NewServer()
 	a.HTTPServer.Host = a.Config.Http.Host
@@ -50,6 +56,23 @@ func (a *Application) Close() error {
 			return err
 		}
 	}
+	return nil
+}
+
+// Work out which DB driver we are using and get the right db connection
+// (Only mysql for now)
+func (a *Application) getDBConnection() error {
+	switch a.Config.Db.Driver {
+	case Mysql:
+		var err error
+		a.DB, err = mysql.NewDB(a.Config.Db.DSN)
+		if err != nil {
+			return err
+		}
+	default:
+		return fmt.Errorf("unknown DB driver in config: %s", a.Config.Db.Driver)
+	}
+
 	return nil
 }
 

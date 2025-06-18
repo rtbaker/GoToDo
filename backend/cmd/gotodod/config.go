@@ -1,12 +1,20 @@
 package main
 
+// Enum type for available DB drivers. Only MySQL for now
+type DatabaseDriver string
+
+const (
+	Mysql DatabaseDriver = "mysql"
+)
+
 type DatabaseConfig struct {
-	DSN string `mapstructure:"dsn"`
+	Driver DatabaseDriver `mapstructure:"driver"`
+	DSN    string         `mapstructure:"dsn"`
 }
 
 type HttpConfig struct {
 	Host string `mapstructure:"host"`
-	Port int    `mapstructure: "port"`
+	Port int    `mapstructure:"port"`
 }
 
 // Configuration for a HTTP server instance.
