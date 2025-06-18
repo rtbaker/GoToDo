@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	gotodo "github.com/rtbaker/GoToDo/Model"
 )
 
 // All our HTTP server goodness
@@ -15,6 +16,9 @@ type Server struct {
 
 	server *http.Server
 	router *mux.Router
+
+	TodoService gotodo.ToDoService
+	UserService gotodo.UserService
 }
 
 func NewServer() *Server {
@@ -26,6 +30,9 @@ func NewServer() *Server {
 	// No authenticated requests
 	noAuthRouter := s.router.PathPrefix("/").Subrouter()
 	noAuthRouter.HandleFunc("/uptest", s.handleUptest).Methods("GET")
+
+	// Register all other routes
+	s.registerTodoRoutes(s.router)
 
 	// use our mux
 	s.server.Handler = s.router

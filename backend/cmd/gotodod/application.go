@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	gotodo "github.com/rtbaker/GoToDo/Model"
 	"github.com/rtbaker/GoToDo/database/mysql"
 	"github.com/rtbaker/GoToDo/http"
 	"github.com/spf13/viper"
@@ -20,11 +21,13 @@ const (
 
 // Application represents the whole App being run by main
 type Application struct {
-	Debug      bool
-	ConfigPath string
-	Config     Config
-	HTTPServer *http.Server
-	DB         *sql.DB
+	Debug       bool
+	ConfigPath  string
+	Config      Config
+	HTTPServer  *http.Server
+	DB          *sql.DB
+	TodoService gotodo.ToDoService
+	UserService gotodo.UserService
 }
 
 func NewApplication() *Application {
@@ -35,12 +38,15 @@ func NewApplication() *Application {
 
 func (a *Application) Run(ctx context.Context) error {
 	// Connect to the DB
-	a.getDBConnection()
+	a.getDBServices()
 
 	// Setup an HTTP Server
 	a.HTTPServer = http.NewServer()
 	a.HTTPServer.Host = a.Config.Http.Host
 	a.HTTPServer.Port = a.Config.Http.Port
+
+	a.HTTPServer.UserService = a.UserService
+	a.HTTPServer.TodoService = a.TodoService
 
 	err := a.HTTPServer.Run()
 	if err != nil {
@@ -61,17 +67,29 @@ func (a *Application) Close() error {
 
 // Work out which DB driver we are using and get the right db connection
 // (Only mysql for now)
-func (a *Application) getDBConnection() error {
+func (a *Application) getDBServices() error {
 	switch a.Config.Db.Driver {
 	case Mysql:
-		var err error
-		a.DB, err = mysql.NewDB(a.Config.Db.DSN)
+		err := a.getMysqlServices()
 		if err != nil {
 			return err
 		}
 	default:
 		return fmt.Errorf("unknown DB driver in config: %s", a.Config.Db.Driver)
 	}
+
+	return nil
+}
+
+func (a *Application) getMysqlServices() error {
+	var err error
+	a.DB, err = mysql.NewDB(a.Config.Db.DSN)
+	if err != nil {
+		return err
+	}
+
+	a.UserService = mysql.NewUserService(a.DB)
+	a.TodoService = mysql.NewToDoService(a.DB)
 
 	return nil
 }

@@ -15,3 +15,7 @@ develop:
 gotodod:
 	mkdir -p ./bin
 	go build -o ./bin/gotodod ./cmd/gotodod
+
+hashpassword:
+	mkdir -p ./bin
+	go build -o ./bin/hashpassword ./cmd/hashpassword

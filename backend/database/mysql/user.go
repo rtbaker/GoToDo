@@ -24,7 +24,7 @@ func NewUserService(db *sql.DB) *UserService {
 func (s *UserService) FindUserByID(ctx context.Context, id int) (*gotodo.User, error) {
 	var u gotodo.User
 
-	row := s.db.QueryRowContext(ctx, `SELECT * FROM user WHERE id = ?`, id)
+	row := s.db.QueryRowContext(ctx, `SELECT * FROM users WHERE id = ?`, id)
 	if err := row.Scan(&u.ID, &u.Email, &u.Password, &u.CreatedAt, &u.UpdatedAt); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, err
@@ -44,7 +44,7 @@ func (s *UserService) CreateUser(ctx context.Context, user *gotodo.User) error {
 
 	result, err := s.db.ExecContext(
 		ctx,
-		`INSERT INTO user (email, password, created_at, updated_at) VALUES (?, ?, ?, ?)`,
+		`INSERT INTO users (email, password, created_at, updated_at) VALUES (?, ?, ?, ?)`,
 		user.Email,
 		user.Password,
 		user.CreatedAt,
@@ -73,7 +73,7 @@ func (s *UserService) UpdateUserPassword(ctx context.Context, id int, upd gotodo
 	result, err := s.db.ExecContext(
 		ctx,
 		`
-		UPDATE user
+		UPDATE users
 		SET password = ?,
 		WHERE id = ?
 		`,
@@ -102,7 +102,7 @@ func (s *UserService) DeleteUser(ctx context.Context, id int) error {
 	// We ignore the result, don't care if it existed or not
 	_, err := s.db.ExecContext(
 		ctx,
-		`DELETE user WHERE id = ?`,
+		`DELETE FROM users WHERE id = ?`,
 		id,
 	)
 
