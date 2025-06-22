@@ -5,10 +5,13 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/alexedwards/scs/mysqlstore"
+	"github.com/alexedwards/scs/v2"
 	gotodo "github.com/rtbaker/GoToDo/Model"
 	"github.com/rtbaker/GoToDo/database/mysql"
 	"github.com/rtbaker/GoToDo/http"
@@ -21,13 +24,15 @@ const (
 
 // Application represents the whole App being run by main
 type Application struct {
-	Debug       bool
-	ConfigPath  string
-	Config      Config
-	HTTPServer  *http.Server
-	DB          *sql.DB
-	TodoService gotodo.ToDoService
-	UserService gotodo.UserService
+	Debug        bool
+	ConfigPath   string
+	Config       Config
+	HTTPServer   *http.Server
+	DB           *sql.DB
+	TodoService  gotodo.ToDoService
+	UserService  gotodo.UserService
+	SessionStore scs.Store
+	Logger       *log.Logger
 }
 
 func NewApplication() *Application {
@@ -40,14 +45,29 @@ func (a *Application) Run(ctx context.Context) error {
 	// Connect to the DB
 	a.getDBServices()
 
+	sessionCfg := http.SessionConfig{
+		IdleTimeout: a.Config.Session.IdleTimeout,
+		Lifetime:    a.Config.Session.Lifetime,
+		Name:        a.Config.Session.CookieName,
+		SameSite:    a.Config.Session.SameSite,
+		Secure:      a.Config.Session.Secure,
+	}
+
+	// Setup a logger, for now we just use stdout
+	a.Logger = log.New(os.Stdout, "gotodod:", log.LstdFlags)
+
 	// Setup an HTTP Server
-	a.HTTPServer = http.NewServer()
+	a.HTTPServer = http.NewServer(sessionCfg)
 	a.HTTPServer.Host = a.Config.Http.Host
 	a.HTTPServer.Port = a.Config.Http.Port
 
 	a.HTTPServer.UserService = a.UserService
 	a.HTTPServer.TodoService = a.TodoService
+	a.HTTPServer.SessionManager.Store = a.SessionStore
 
+	a.HTTPServer.Logger = a.Logger
+
+	// And run our server
 	err := a.HTTPServer.Run()
 	if err != nil {
 		return fmt.Errorf("error running http server: %s", err)
@@ -88,8 +108,12 @@ func (a *Application) getMysqlServices() error {
 		return err
 	}
 
+	// Data services
 	a.UserService = mysql.NewUserService(a.DB)
 	a.TodoService = mysql.NewToDoService(a.DB)
+
+	// Sessions storage (in app db, could be moved to Redis or somesuch if required for performance)
+	a.SessionStore = mysqlstore.New(a.DB)
 
 	return nil
 }
