@@ -48,7 +48,7 @@ func NewServer(sessionConfig SessionConfig) *Server {
 	s.SessionManager.Cookie.SameSite = sessionConfig.SameSite
 
 	// Wrap the gorilla mux in session and logging so that logger is the parent
-	// followed next by session, then it's whatever is set via gorrilla mux
+	// followed next by session, then it's whatever is set via gorilla mux
 	//
 	// We use scs rather than roll our own because hopefully a mature session manager has
 	// had the security bugs fixed.
