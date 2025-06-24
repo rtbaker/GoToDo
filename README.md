@@ -1,6 +1,8 @@
 # GoToDo
 
-Simple ToDo API
+Simple ToDo API. 
+
+A Todo has a title, description, priority and a completed flag.
 
 ## Structure
 
