@@ -36,6 +36,21 @@ func (s *UserService) FindUserByID(ctx context.Context, id int) (*gotodo.User, e
 	return &u, nil
 }
 
+func (s *UserService) FindUserByEmail(ctx context.Context, email string) (*gotodo.User, error) {
+	var u gotodo.User
+
+	row := s.db.QueryRowContext(ctx, `SELECT * FROM users WHERE email = ?`, email)
+	if err := row.Scan(&u.ID, &u.Email, &u.Password, &u.CreatedAt, &u.UpdatedAt); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, err
+		}
+
+		return nil, fmt.Errorf("mysql FindUserByEmail %s: %s", email, err)
+	}
+
+	return &u, nil
+}
+
 // Creates a new user.
 func (s *UserService) CreateUser(ctx context.Context, user *gotodo.User) error {
 	t := time.Now()

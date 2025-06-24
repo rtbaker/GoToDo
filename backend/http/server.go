@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/alexedwards/scs/v2"
+	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
 	gotodo "github.com/rtbaker/GoToDo/Model"
 )
@@ -24,6 +25,8 @@ type Server struct {
 	SessionManager *scs.SessionManager
 
 	Logger *log.Logger
+
+	validator *validator.Validate
 }
 
 func NewServer(sessionConfig SessionConfig) *Server {
@@ -35,9 +38,13 @@ func NewServer(sessionConfig SessionConfig) *Server {
 	// No authenticated requests
 	noAuthRouter := s.router.PathPrefix("/").Subrouter()
 	noAuthRouter.HandleFunc("/uptest", s.handleUptest).Methods("GET")
+	s.registerAuthnRoutes(noAuthRouter)
 
-	// Register all other routes
-	s.registerTodoRoutes(s.router)
+	// Register all authenticated routes
+	authRouter := s.router.PathPrefix("/").Subrouter()
+	authRouter.Use(s.requireAuth)
+	s.registerTodoRoutes(authRouter)
+	s.registerUserRoutes(authRouter)
 
 	// Create the session manager (the app will set the store later once it knows what DB)
 	s.SessionManager = scs.New()
@@ -46,6 +53,9 @@ func NewServer(sessionConfig SessionConfig) *Server {
 	s.SessionManager.Cookie.Secure = sessionConfig.Secure
 	s.SessionManager.Cookie.Name = sessionConfig.Name
 	s.SessionManager.Cookie.SameSite = sessionConfig.SameSite
+
+	// Just the vanilla validator for now
+	s.validator = validator.New()
 
 	// Wrap the gorilla mux in session and logging so that logger is the parent
 	// followed next by session, then it's whatever is set via gorilla mux
@@ -67,6 +77,26 @@ func (s *Server) Run() error {
 
 func (s *Server) Close() error {
 	return nil
+}
+
+func (s *Server) requireAuth(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// the session will have a user object
+		if !s.SessionManager.Exists(r.Context(), "user") {
+			httpErr := HttpError{
+				Code:    http.StatusUnauthorized,
+				Message: "no authentication",
+			}
+
+			ReturnError(w, httpErr)
+
+			return
+		}
+
+		// No further checks for now, although we should probably add
+		// a disable user flag at some point
+		next.ServeHTTP(w, r)
+	})
 }
 
 func ReturnJson(w http.ResponseWriter, code int, content any) {
