@@ -10,7 +10,7 @@ type ToDo struct {
 	UserId      int64     `json:"userId"`
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
-	Priority    int       `json:"priority"`
+	Priority    int       `json:"priority"` // integer priority, higher the number the higher the priority
 	Completed   bool      `json:"completed"`
 	CreatedAt   time.Time `json:"createdAt"`
 	UpdatedAt   time.Time `json:"updatedAt"`

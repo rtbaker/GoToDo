@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	gotodo "github.com/rtbaker/GoToDo/Model"
 )
 
 func (s *Server) registerUserRoutes(r *mux.Router) {
@@ -13,15 +12,10 @@ func (s *Server) registerUserRoutes(r *mux.Router) {
 }
 
 func (s *Server) handleUserIndex(w http.ResponseWriter, r *http.Request) {
-	// The authn middleware will ensur ewe have alogge din user here so shouldn't fail
-	user, ok := s.SessionManager.Get(r.Context(), "user").(gotodo.User)
+	// The authn middleware will ensure we have alogged in user here so shouldn't fail
+	user, ok := s.getUser(w, r)
 	if !ok {
-		httpErr := HttpError{
-			Code:    http.StatusInternalServerError,
-			Message: "cannot conver user value in session",
-		}
-
-		ReturnError(w, httpErr)
+		return
 	}
 
 	ReturnJson(w, http.StatusOK, user)

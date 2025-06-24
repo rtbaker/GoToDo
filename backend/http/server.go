@@ -99,6 +99,22 @@ func (s *Server) requireAuth(next http.Handler) http.Handler {
 	})
 }
 
+// Gets the user from the context/session and returns it, if no user available
+// then return error. To be used by authenticated endpoints.
+func (s *Server) getUser(w http.ResponseWriter, r *http.Request) (gotodo.User, bool) {
+	user, ok := s.SessionManager.Get(r.Context(), "user").(gotodo.User)
+	if !ok {
+		httpErr := HttpError{
+			Code:    http.StatusInternalServerError,
+			Message: "cannot conver user value in session",
+		}
+
+		ReturnError(w, httpErr)
+	}
+
+	return user, true
+}
+
 func ReturnJson(w http.ResponseWriter, code int, content any) {
 	w.Header().Set("Content-type", "application/json")
 	w.WriteHeader(code)

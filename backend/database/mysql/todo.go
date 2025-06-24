@@ -28,7 +28,7 @@ func (s *ToDoService) FindToDoByID(ctx context.Context, id int) (*gotodo.ToDo, e
 	if err := row.Scan(&t.ID, &t.UserId, &t.Title, &t.Description, &t.Priority,
 		&t.Completed, &t.CreatedAt, &t.UpdatedAt); err != nil {
 		if err == sql.ErrNoRows {
-			return nil, err
+			return nil, nil
 		}
 
 		return nil, fmt.Errorf("mysql FindToDoByID %d: %s", id, err)
@@ -75,7 +75,7 @@ func (s *ToDoService) CreateToDo(ctx context.Context, todo *gotodo.ToDo) error {
 
 	result, err := s.db.ExecContext(
 		ctx,
-		`INSERT INTO album (userId, title, description, priority, completed, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+		`INSERT INTO todo (userId, title, description, priority, completed, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)`,
 		todo.UserId,
 		todo.Title,
 		todo.Description,
@@ -120,6 +120,7 @@ func (s *ToDoService) UpdateToDo(ctx context.Context, id int, upd gotodo.ToDoUpd
 		upd.Priority,
 		upd.Completed,
 		t,
+		id,
 	)
 
 	if err != nil {
@@ -149,7 +150,7 @@ func (s *ToDoService) DeleteToDo(ctx context.Context, id int) error {
 	// We ignore the result, don't care if it existed or not
 	_, err := s.db.ExecContext(
 		ctx,
-		`DELETE todo WHERE id = ?`,
+		`DELETE FROM todo WHERE id = ?`,
 		id,
 	)
 
