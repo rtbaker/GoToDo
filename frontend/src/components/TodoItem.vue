@@ -1,8 +1,7 @@
 <script setup>
 import { computed } from 'vue' 
 
-
-defineProps({
+const props = defineProps({
   data: {
     type: Object,
     required: true,
@@ -12,29 +11,43 @@ defineProps({
 const itemStatus = computed(() => {
   return 'normal'
 })
+
+function markDone() {
+    alert(`marked done: ${props.data.id}`)
+}
+
+function editTodo() {
+    alert(`edit todo: ${props.data.id}`)
+}
+
+function deleteTodo() {
+    alert(`delete todo: ${props.data.id}`)
+}
+
 </script>
 
 <template>
-    <item :class="itemStatus">
-        <content>
+    <div class="item" :class="itemStatus">
+        <div class="content">
             <h2>{{  data.title }}</h2>
             <p>{{ data.description }}</p>
-        </content>
+        </div>
 
-        <footer>
-            <info>
+        <div class="footer">
+            <div class="info">
                 date here
-            </info>
-            <actionlist>
-                <a href="http://www.ic.ac.uk"><img alt="Add Todo" src="../assets/done.svg" class="actionlogo" /></a>
-                <a href=""><img alt="Add Todo" src="../assets/delete.svg" class="actionlogo" /></a>
-            </actionlist>
-        </footer>
-    </item>
+            </div>
+            <div class="actionlist">
+                <img @click="markDone" alt="Add Todo" src="../assets/done.svg" class="actionlogo" />
+                <img @click="editTodo" alt="Edit Todo" src="../assets/edit.svg" class="actionlogo" />
+                <img @click="deleteTodo" alt="Delete Todo" src="../assets/delete.svg" class="actionlogo" />
+            </div>
+        </div>
+    </div>
 </template>
 
 <style scoped>
-item {
+.item {
     border-radius: 8px;
     border-color: black;
     border-style: solid;
@@ -59,40 +72,41 @@ item {
     background-color: red;
 }
 
-footer {
+.footer {
     margin-top: auto;
 }
 
-content {
+.content {
     margin-bottom: 15px;
 }
 
-actionlist {
+.actionlist {
     float: right;
     height: auto;
     line-height: 1;
 }
 
+.info {
+    display: inline-block;
+}
 .actionlogo {
     height: 25px;
     width: 25px;
 }
 
-a {
+img {
     margin-left: 5px;
-    display:inline-block;
-    border-radius: 5px;
-    height: 25px;
+    border-radius: 12.5px;
 }
 
 @media (min-width: 600px) {
-    item {
+    .item {
         width: 250px;
     }
 }
 
 @media (hover: hover) {
-  a:hover {
+  img:hover {
     background-color: hsla(160, 100%, 37%, 0.2);
   }
 }

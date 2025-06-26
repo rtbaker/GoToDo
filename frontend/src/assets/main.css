@@ -7,12 +7,14 @@
   font-weight: normal;
 }
 
+body {
+    background-color: aliceblue;
+}
 
 @media (min-width: 1024px) {
   body {
     display: flex;
     place-items: top;
-    background-color: aliceblue;
   }
 
   #app {

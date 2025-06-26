@@ -1,6 +1,11 @@
 <script setup>
 import { ref } from 'vue'
 import TodoItem from './TodoItem.vue'
+import { onMounted } from 'vue'
+
+onMounted(() => {
+  console.log(`the component is now mounted.`)
+})
 
 const todos = ref([
     { 'id': 1, 'title': "title 1", 'description': "a description for our todo number 1"},
@@ -12,11 +17,9 @@ const todos = ref([
 
 <template>
     <div class="mainlist">
-        <todoItems>
-            <template  v-for="todo in todos" :key="todo.id">
-                <TodoItem :data="todo" />
-            </template>
-        </todoItems>
+        <div class="todoItems">
+            <TodoItem v-for="todo in todos" :key="todo.id" :data="todo" />
+        </div>
     </div>
 </template>
 
@@ -29,7 +32,7 @@ const todos = ref([
     height: auto;
 }
 
-todoItems {
+.todoItems {
   display: flex;
   flex-wrap: wrap;
 }
