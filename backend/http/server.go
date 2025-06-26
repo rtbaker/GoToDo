@@ -79,6 +79,7 @@ func (s *Server) Close() error {
 	return nil
 }
 
+// TODO: add a disable flag to a user (and do user refresh on each request to check for changes)
 func (s *Server) requireAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// the session will have a user object
@@ -93,8 +94,7 @@ func (s *Server) requireAuth(next http.Handler) http.Handler {
 			return
 		}
 
-		// No further checks for now, although we should probably add
-		// a disable user flag at some point
+		// No further checks for now
 		next.ServeHTTP(w, r)
 	})
 }
