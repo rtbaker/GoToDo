@@ -1,46 +1,36 @@
 <script setup>
 import { computed } from 'vue' 
+import ToDo from '../model/ToDo.js'
 
-const props = defineProps({
-  data: {
-    type: Object,
-    required: true,
-  },
+//const props = defineProps({
+defineProps({
+    todo: {
+        type: ToDo,
+        required: true
+    },
 })
 
 const itemStatus = computed(() => {
   return 'normal'
 })
 
-function markDone() {
-    alert(`marked done: ${props.data.id}`)
-}
-
-function editTodo() {
-    alert(`edit todo: ${props.data.id}`)
-}
-
-function deleteTodo() {
-    alert(`delete todo: ${props.data.id}`)
-}
-
 </script>
 
 <template>
     <div class="item" :class="itemStatus">
         <div class="content">
-            <h2>{{  data.title }}</h2>
-            <p>{{ data.description }}</p>
+            <h2>{{  todo.title }}</h2>
+            <p>{{ todo.description }}</p>
         </div>
 
         <div class="footer">
             <div class="info">
-                date here
+               {{  todo.displayDate() }}
             </div>
             <div class="actionlist">
-                <img @click="markDone" alt="Add Todo" src="../assets/done.svg" class="actionlogo" />
-                <img @click="editTodo" alt="Edit Todo" src="../assets/edit.svg" class="actionlogo" />
-                <img @click="deleteTodo" alt="Delete Todo" src="../assets/delete.svg" class="actionlogo" />
+                <img @click="$emit('markTodoDone', todo.id)" alt="Add Todo" src="../assets/done.svg" class="actionlogo" />
+                <img @click="$emit('editTodo', todo.id)" src="../assets/edit.svg" class="actionlogo" />
+                <img @click="$emit('deleteTodo', todo.id)" src="../assets/delete.svg" class="actionlogo" />
             </div>
         </div>
     </div>
@@ -88,6 +78,7 @@ function deleteTodo() {
 
 .info {
     display: inline-block;
+    font-size: 80%;
 }
 .actionlogo {
     height: 25px;
