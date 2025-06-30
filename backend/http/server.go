@@ -39,7 +39,7 @@ func NewServer(sessionConfig SessionConfig) *Server {
 	// CORS setup, TODO: options in config file
 	corsOrigins := handlers.AllowedOrigins([]string{"http://localhost:5173"})
 	corsHeaders := handlers.AllowedHeaders([]string{"Accept", "Accept-Language", "Content-Type", "Content-Language", "Origin"})
-	corsMethods := handlers.AllowedMethods([]string{"GET", "POST", "OPTIONS", "DELETE", "PUT"})
+	corsMethods := handlers.AllowedMethods([]string{"GET", "POST", "OPTIONS", "DELETE", "PUT", "PATCH"})
 	corsCredentials := handlers.AllowCredentials()
 	corsHandler := handlers.CORS(corsOrigins, corsHeaders, corsMethods, corsCredentials)
 

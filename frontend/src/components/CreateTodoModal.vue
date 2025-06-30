@@ -1,116 +1,115 @@
 <script setup>
-import { ref } from 'vue'
-import eyeUrl from '@/assets/eye.svg';
-import eyeCrossedUrl from '@/assets/eye-crossed.svg';
+import { ref, watch } from 'vue'
+import ToDo from '../model/ToDo.js'
 
-const loginAPI=import.meta.env.VITE_API_URL + "/api/1.0/login"
+const createAPI=import.meta.env.VITE_API_URL + "/api/1.0/todos"
 const errorMessage = ref("")
-const email = ref("")
-const password = ref("")
-const passwordFieldType = ref("password")
-const passwordEyeImage = ref(eyeUrl)
+const title = ref("")
+const description = ref("")
+const priority = ref(1)
 
-const emit = defineEmits(['closeLogin', 'loginSuccess'])
+const emit = defineEmits(['closeCreate', 'createNeedsLogin', 'todoCreated'])
 
-defineProps({
-  show: Boolean
+const props = defineProps({
+  showCreate: Boolean
 })
 
-function doLogin() {
-    if (email.value.length == 0) {
-        errorMessage.value = "Please enter an email address."
-        return;
-    }
-    
-    if (!emailIsValid(email.value)) {
-        errorMessage.value = "Sorry this does not look like a valid email address."
+function doCreate() {
+    if (title.value.length == 0) {
+        errorMessage.value = "Please enter a title."
         return;
     }
 
-    if (password.value.length == 0) {
-        errorMessage.value = "Please enter a password."
+    if (description.value.length == 0) {
+        errorMessage.value = "Please enter a description."
         return;
     }
 
-    postLoginAPI();
+    postCreateAPI();
 }
 
 // Actually call the API, done with await as there is no point returning
 // to the user until an answer
-async function postLoginAPI() {
+async function postCreateAPI() {
   try {
-    const response = await fetch(loginAPI, {
+    const response = await fetch(createAPI, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email: email.value, password: password.value }),
+      body: JSON.stringify({ title: title.value, description: description.value, priority: priority.value }),
       credentials: "include",
     });
 
     if (!response.ok) {
       console.log(`Response status: ${response.status}`);
 
+      if (response.status === 401) {
+        emit("createNeedsLogin");
+      }
+
       const json = await response.json();
       console.log(json);
       errorMessage.value = json.message
+
       return;
     }
 
+    const json = await response.json();
+          
+    let newTodo = ToDo.newFromJSON(json);
+    emit("todoCreated", newTodo)
+
     // all good then close
-    emit('loginSuccess');
+    emit('closeCreate');
   } catch (error) {
     errorMessage.value = error.message;
   }
+
 }
 
-// Basic check
-function emailIsValid (email) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-}
-
-// Password field hide/show text
-function switchPassword() {
-    passwordFieldType.value = (passwordFieldType.value === "password" ? "text" : "password")
-    passwordEyeImage.value = (passwordEyeImage.value === eyeUrl ? eyeCrossedUrl : eyeUrl)
-}
+// Reset values
+watch(
+  () => props.showCreate,
+  () => {
+    title.value = "";
+    description.value = "";
+    priority.value = 1;
+  }
+);
 
 </script>
 
 <template>
-  <Transition name="modal">
-    <div v-if="show" class="modal-mask">
-      <div class="modal-container">
-        <div class="modal-header">
-          <h3>Login</h3>
+  <Transition name="create-modal">
+    <div v-if="showCreate" class="create-modal-mask">
+      <div class="create-modal-container">
+        <div class="create-modal-header">
+          <h3>Create Todo</h3>
         </div>
 
-        <div class="modal-body">
-          <label for="uname">Email</label>
-            <input v-model="email" type="text" placeholder="Enter Username" name="uname" required>
-        
-            <div class="password-label">
-                <label for="psw">Password</label>
-                <img class="password-eye" :src="passwordEyeImage" @click="switchPassword"></img>
-            </div>
-            <input v-model="password" :type="passwordFieldType" placeholder="Enter Password" name="psw" required>
-
-            <button
-             type="button"
-                class="modal-default-button"
-                @click="doLogin"
-            >OK</button>
-
-            <div class="error">
-              {{  errorMessage }}
-            </div>
+        <div class="create-modal-body">
+          <label for="title">Title</label>
+          <input v-model="title" type="text" placeholder="Enter Title" name="title" required>
+          
+          <label for="description">Description</label>
+          <textarea v-model="description" rows="10" placeholder="Enter Description" name="description" required></textarea>
+                    
+          <div class="error">
+            {{  errorMessage }}
+          </div>
         </div>
 
-        <div class="modal-footer">
+        <div class="create-modal-footer">
+          <button
+                       type="button"
+                          class="create-std-button"
+                          @click="doCreate"
+                      >OK</button>
             <button
                 type="button"
-              class="modal-default-button cancel-btn"
-              @click="$emit('close')"
+              class="create-std-button create-cancel-btn"
+              @click="$emit('closeCreate')"
             >Cancel</button>
         </div>
       </div>
@@ -119,6 +118,10 @@ function switchPassword() {
 </template>
 
 <style>
+textarea {
+  width: 100%;
+}
+
 .password-label {
     display: flex;
     align-items: center;
@@ -142,15 +145,13 @@ input[type=text], input[type=password] {
 }
 
 /* Set a style for all buttons */
-.modal-default-button {
+.create-std-button {
   background-color: #04AA6D;
   color: white;
   padding: 14px 20px;
   margin: 8px 0;
   border: none;
   cursor: pointer;
-  width: 100%;
-  display: block;
 }
 
 label {
@@ -163,10 +164,10 @@ button:hover {
 }
 
 /* Extra style for the cancel button (red) */
-.cancel-btn {
-  width: auto;
-  padding: 10px 18px;
+.create-cancel-btn {
+  padding: 14px 20px;
   background-color: #f44336;
+  margin-left: 10px;
 }
 
 /* Change styles for span and cancel button on extra small screens */
@@ -175,7 +176,8 @@ button:hover {
     display: block;
     float: none;
   }
-  .cancelbtn {
+
+  .create-std-button {
     width: 100%;
   }
 }
@@ -185,13 +187,13 @@ button:hover {
 }
 /* stuff from vue tutorial on modals: */
 
-.modal-footer {
+.create-modal-footer {
     border-top: 1px solid darkgrey;
     background-color:#f1f1f1;
     padding: 10px;
 }
 
-.modal-mask {
+.create-modal-mask {
   position: fixed;
   z-index: 9998;
   top: 0;
@@ -203,7 +205,7 @@ button:hover {
   transition: opacity 0.3s ease;
 }
 
-.modal-container {
+.create-modal-container {
   width: 40%;
   margin: auto;
   padding: 0px 0px;
@@ -214,18 +216,18 @@ button:hover {
 }
 
 @media screen and (max-width: 400px) {
-  .modal-container {
+  .create-modal-container {
     width: 95%;
   }
 }
 
-.modal-header h3 {
+.create-modal-header h3 {
   text-align: center;
   margin-top: 10px;
   color: #42b983;
 }
 
-.modal-body {
+.create-modal-body {
   margin-top: 10px;
   padding: 16px;
   height: 100%;
@@ -236,20 +238,20 @@ button:hover {
  * transition="modal" when their visibility is toggled
  * by Vue.js.
  *
- * You can easily play with the modal transition by editing
+ * You can easily play with the modal transition by editingcreate-
  * these styles.
  */
 
-.modal-enter-from {
+.create-modal-enter-from {
   opacity: 0;
 }
 
-.modal-leave-to {
+.create-modal-leave-to {
   opacity: 0;
 }
 
-.modal-enter-from .modal-container,
-.modal-leave-to .modal-container {
+.create-modal-enter-from .create-modal-container,
+.create-modal-leave-to .create-modal-container {
   -webkit-transform: scale(1.1);
   transform: scale(1.1);
 }

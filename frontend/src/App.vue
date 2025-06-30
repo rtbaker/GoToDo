@@ -21,12 +21,8 @@ function loginSuccess() {
 
 <template>
       <LoginModal :show="showLoginModal" @closeLogin="showLoginModal = false" @loginSuccess="loginSuccess"></LoginModal>
-      
-      <TodoItemList @needsLogin="needsLogin" :key="reloadItemList"/>
 
-      <div>
-        <a href=""><img alt="Add Todo" class="logo" src="./assets/add.svg" width="35" height="35" /></a>
-      </div>
+      <TodoItemList @needsLogin="needsLogin" :key="reloadItemList"/>
 </template>
 
 <style scoped>

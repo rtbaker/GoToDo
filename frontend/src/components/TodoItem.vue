@@ -31,9 +31,9 @@ const itemStatus = computed(() => {
                {{  todo.displayDate() }}
             </div>
             <div class="actionlist">
-                <img @click="$emit('markTodoDone', todo.id)" alt="Add Todo" src="../assets/done.svg" class="actionlogo" />
-                <img @click="$emit('editTodo', todo.id)" src="../assets/edit.svg" class="actionlogo" />
-                <img @click="$emit('deleteTodo', todo.id)" src="../assets/delete.svg" class="actionlogo" />
+                <img @click="$emit('markTodoDone', todo)" alt="Add Todo" src="../assets/done.svg" class="actionlogo" />
+                <img @click="$emit('editTodo', todo)" src="../assets/edit.svg" class="actionlogo" />
+                <img @click="$emit('deleteTodo', todo)" src="../assets/delete.svg" class="actionlogo" />
             </div>
         </div>
     </div>
