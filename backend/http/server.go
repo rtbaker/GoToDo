@@ -8,6 +8,7 @@ import (
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/go-playground/validator/v10"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	gotodo "github.com/rtbaker/GoToDo/Model"
 )
@@ -34,6 +35,13 @@ func NewServer(sessionConfig SessionConfig) *Server {
 		server: &http.Server{},
 		router: mux.NewRouter(),
 	}
+
+	// CORS setup, TODO: options in config file
+	corsOrigins := handlers.AllowedOrigins([]string{"http://localhost:5173"})
+	corsHeaders := handlers.AllowedHeaders([]string{"Accept", "Accept-Language", "Content-Type", "Content-Language", "Origin"})
+	corsMethods := handlers.AllowedMethods([]string{"GET", "POST", "OPTIONS", "DELETE", "PUT"})
+	corsCredentials := handlers.AllowCredentials()
+	corsHandler := handlers.CORS(corsOrigins, corsHeaders, corsMethods, corsCredentials)
 
 	// No authenticated requests
 	noAuthRouter := s.router.PathPrefix("/").Subrouter()
@@ -62,7 +70,7 @@ func NewServer(sessionConfig SessionConfig) *Server {
 	//
 	// We use scs rather than roll our own because hopefully a mature session manager has
 	// had the security bugs fixed.
-	s.server.Handler = s.logRequest(s.SessionManager.LoadAndSave(s.router))
+	s.server.Handler = s.logRequest(corsHandler(s.SessionManager.LoadAndSave(s.router)))
 
 	return s
 }

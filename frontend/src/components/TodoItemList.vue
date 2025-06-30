@@ -6,17 +6,15 @@ import ToDo from '../model/ToDo.js'
 
 const emit = defineEmits(['needsLogin'])
 
+// urls
+const getTodosAPI=import.meta.env.VITE_API_URL + "/api/1.0/todos"
 
 onMounted(() => {
-    emit('needsLogin')
+  getTodos();
   console.log(`the TodoItemList component is now mounted.`)
 })
 
-const todos = ref([
-    ToDo.newFromJSON({ 'id': 1, 'title': "title 1", 'description': "a description for our todo number 1!", 'updatedAt': "2025-06-24T14:04:32.689170511+01:00"}),
-    ToDo.newFromJSON({ 'id': 2, 'title': "title 2", 'description': "a description 2", 'updatedAt': "2025-06-24T14:04:32.689170511+01:00"}),
-    ToDo.newFromJSON({ 'id': 3, 'title': "title 3", 'description': "a description 3", 'updatedAt': "2025-06-24T14:04:32.689170511+01:00"}),
-])
+const todos = ref(new Map())
 
 function markTodoDone(todoId) {
     alert(`mark done: ${todoId}`)
@@ -30,13 +28,54 @@ function deleteTodo(todoId) {
     alert(`delete: ${todoId}`)
 }
 
+async function getTodos() {
+    try {
+        const response = await fetch(getTodosAPI, {
+          method: "GET",
+          credentials: "include",
+        });
+    
+        if (!response.ok) {
+          console.log(`Response status: ${response.status}`);
+
+          if (response.status === 401) {
+            emit("needsLogin");
+          }
+
+          const json = await response.json();
+          console.log(json);
+
+          return;
+        }
+    
+        // all good then close
+        const json = await response.json();
+        loadItems(json);
+        //console.log(json);
+      } catch (error) {
+        console.log(error.message);
+      }
+}
+
+function sortedItems() {
+    let items = Array.from(todos.value.values());
+    console.log(items);
+    return items.sort((a,b) => b.priority - a.priority);
+}
+
+function loadItems(itemList) {
+    for (const item of itemList) {
+        let todo = ToDo.newFromJSON(item);
+        todos.value.set(todo.id, todo);
+    }
+}
 </script>
 
 
 <template>
     <div class="mainlist">
         <div class="todoItems">
-            <TodoItem v-for="todo in todos" :todo="todo" v-bind:key="todo.id"
+            <TodoItem v-for="todo in sortedItems()" :todo="todo" v-bind:key="todo.id"
                 @markTodoDone="markTodoDone"
                 @editTodo="editTodo"
                 @deleteTodo="deleteTodo"

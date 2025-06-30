@@ -18,8 +18,11 @@ const itemStatus = computed(() => {
 
 <template>
     <div class="item" :class="itemStatus">
+        <div class="header">
+            <h2>{{  todo.title }}</h2> Priority: {{ todo.priority }}
+        </div>
+
         <div class="content">
-            <h2>{{  todo.title }}</h2>
             <p>{{ todo.description }}</p>
         </div>
 

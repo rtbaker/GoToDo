@@ -8,10 +8,10 @@ import (
 
 type HttpError struct {
 	// Machine-readable error code.
-	Code int
+	Code int `json:"code"`
 
 	// Human-readable error message.
-	Message string
+	Message string `json:"message"`
 }
 
 // Error implements the error interface. Not used by the application otherwise.

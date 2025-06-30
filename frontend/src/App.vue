@@ -4,17 +4,25 @@ import { ref } from 'vue'
 import LoginModal from './components/LoginModal.vue'
 
 const showLoginModal = ref(false);
+const reloadItemList = ref(0);
 
 function needsLogin() {
   showLoginModal.value = true;
 }
 
+function loginSuccess() {
+  showLoginModal.value = false;
+  reloadItemList.value++;
+
+  console.log("login success");
+}
+
 </script>
 
 <template>
-      <LoginModal :show="showLoginModal" @close="showLoginModal = false"></LoginModal>
+      <LoginModal :show="showLoginModal" @closeLogin="showLoginModal = false" @loginSuccess="loginSuccess"></LoginModal>
       
-      <TodoItemList @needsLogin="needsLogin"/>
+      <TodoItemList @needsLogin="needsLogin" :key="reloadItemList"/>
 
       <div>
         <a href=""><img alt="Add Todo" class="logo" src="./assets/add.svg" width="35" height="35" /></a>

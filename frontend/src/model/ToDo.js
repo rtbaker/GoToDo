@@ -5,17 +5,19 @@ export default class ToDo {
         id,
         title,
         description,
-        updatedAt
+        updatedAt,
+        priority,
     ) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.updatedAt = updatedAt;
+        this.priority = priority;
     }
 
     static newFromJSON(data) {
         const updatedAt = new Date(data.updatedAt);
-        return new ToDo(data.id, data.title, data.description, updatedAt);
+        return new ToDo(data.id, data.title, data.description, updatedAt, data.priority);
     }
 
     displayDate() {

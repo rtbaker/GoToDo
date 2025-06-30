@@ -1,10 +1,16 @@
 <script setup>
 import { ref } from 'vue'
+import eyeUrl from '@/assets/eye.svg';
+import eyeCrossedUrl from '@/assets/eye-crossed.svg';
 
 const loginAPI=import.meta.env.VITE_API_URL + "/api/1.0/login"
 const errorMessage = ref("")
 const email = ref("")
 const password = ref("")
+const passwordFieldType = ref("password")
+const passwordEyeImage = ref(eyeUrl)
+
+const emit = defineEmits(['closeLogin', 'loginSuccess'])
 
 defineProps({
   show: Boolean
@@ -26,12 +32,47 @@ function doLogin() {
         return;
     }
 
-    
+    postLoginAPI();
+}
+
+// Actually call the API, done with await as there is no point returning
+// to the user until an answer
+async function postLoginAPI() {
+  try {
+    const response = await fetch(loginAPI, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email: email.value, password: password.value }),
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      console.log(`Response status: ${response.status}`);
+
+      const json = await response.json();
+      console.log(json);
+      errorMessage.value = json.message
+      return;
+    }
+
+    // all good then close
+    emit('loginSuccess');
+  } catch (error) {
+    errorMessage.value = error.message;
+  }
 }
 
 // Basic check
 function emailIsValid (email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+}
+
+// Password field hide/show text
+function switchPassword() {
+    passwordFieldType.value = (passwordFieldType.value === "password" ? "text" : "password")
+    passwordEyeImage.value = (passwordEyeImage.value === eyeUrl ? eyeCrossedUrl : eyeUrl)
 }
 
 </script>
@@ -48,8 +89,11 @@ function emailIsValid (email) {
           <label for="uname">Email</label>
             <input v-model="email" type="text" placeholder="Enter Username" name="uname" required>
         
-            <label for="psw">Password</label>
-            <input v-model="password" type="password" placeholder="Enter Password" name="psw" required>
+            <div class="password-label">
+                <label for="psw">Password</label>
+                <img class="password-eye" :src="passwordEyeImage" @click="switchPassword"></img>
+            </div>
+            <input v-model="password" :type="passwordFieldType" placeholder="Enter Password" name="psw" required>
 
             <button
              type="button"
@@ -57,7 +101,9 @@ function emailIsValid (email) {
                 @click="doLogin"
             >OK</button>
 
-            {{  errorMessage }}
+            <div class="error">
+              {{  errorMessage }}
+            </div>
         </div>
 
         <div class="modal-footer">
@@ -73,6 +119,16 @@ function emailIsValid (email) {
 </template>
 
 <style>
+.password-label {
+    display: flex;
+    align-items: center;
+}
+
+.password-eye {
+    width: 20px;
+    height: 20px;
+    margin-left: 5px;
+}
 /* stuff nicked from w3schools Login Form example (https://www.w3schools.com/howto/howto_css_login_form.asp) */
 
 /* Full-width inputs */
@@ -124,6 +180,9 @@ button:hover {
   }
 }
 
+.error {
+    min-height: 25px;
+}
 /* stuff from vue tutorial on modals: */
 
 .modal-footer {
@@ -167,7 +226,7 @@ button:hover {
 }
 
 .modal-body {
-  margin: 10px 0;
+  margin-top: 10px;
   padding: 16px;
   height: 100%;
 }
