@@ -168,9 +168,8 @@ function updateNeedsLogin() {
     border-right-style: solid;
 }
 .mainlist {
-    margin: 10px;
+    margin: 5px;
     border-radius: 5px;
-    width: 100%;
     height: auto;
 }
 

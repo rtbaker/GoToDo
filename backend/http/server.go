@@ -39,9 +39,10 @@ func NewServer(sessionConfig SessionConfig) *Server {
 	// CORS setup, TODO: options in config file
 	corsHandler := cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:5173", "http://192.168.178.*:5173"},
-		AllowedMethods:   []string{"GET", "POST", "OPTIONS", "DELETE", "PUT", "PATCH"},
+		AllowedMethods:   []string{"GET", "POST", "OPTIONS", "DELETE", "PUT", "PATCH", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Accept-Language", "Content-Type", "Content-Language", "Origin"},
 		AllowCredentials: true,
+		Debug:            true,
 	})
 
 	// No authenticated requests

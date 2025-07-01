@@ -1,6 +1,6 @@
 # gotodo
 
-A simple front end to the todo api using Vue 3/Vite.
+A simple front end to the todo api using Vue 3/Vite. Needs a designer to make it look good :-).
 
 ## Recommended IDE Setup
 
@@ -18,9 +18,20 @@ npm install
 
 ### Compile and Hot-Reload for Development
 
+Edit `.env.developement` and set the `VITE_API_URL` env var to the backend endpoint, e.g.
+
+```
+VITE_API_URL=http://192.168.178.217:9090
+```
+
+NOTE: we use the machine IP address here rather than localhost so that we don't get into
+third party cookie hell.
+
 ```sh
 npm run dev
 ```
+
+Browse to: `http://192.168.178.217:5173` or whatever your IP address is.
 
 ### Compile and Minify for Production
 
