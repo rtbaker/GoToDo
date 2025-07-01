@@ -37,7 +37,7 @@ async function postCreateAPI() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ title: title.value, description: description.value, priority: priority.value }),
+      body: JSON.stringify({ title: title.value, description: description.value, priority: Number(priority.value) }),
       credentials: "include",
     });
 
@@ -94,11 +94,14 @@ watch(
           
           <label for="description">Description</label>
           <textarea v-model="description" rows="10" placeholder="Enter Description" name="description" required></textarea>
-                    
+           
+          <label for="rangeSlider" class="sliderValue">Priority - {{ priority }}</label>
+           <input type="range" class="form-range" v-model="priority" min="0" max="10" step="1"/>
+        
           <div class="error">
             {{  errorMessage }}
           </div>
-        </div>
+        </div> 
 
         <div class="create-modal-footer">
           <button
@@ -142,6 +145,11 @@ input[type=text], input[type=password] {
   display: inline-block;
   border: 1px solid #ccc;
   box-sizing: border-box;
+}
+
+input[type=range] {
+  width: 50%;
+  display: block;
 }
 
 /* Set a style for all buttons */

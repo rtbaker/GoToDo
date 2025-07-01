@@ -89,7 +89,8 @@ async function getTodos() {
 
 function sortedItems() {
     let items = Array.from(todos.value.values());
-    return items.sort((a,b) => b.priority - a.priority);
+    items.sort((a,b) => b.priority - a.priority);
+    return items.sort((a,b) => a.completed === b.completed ? 0 : a.completed ? 1 : -1)
 }
 
 function loadItems(itemList) {
@@ -124,6 +125,7 @@ function createNeedsLogin() {
 
     <div>
         <img @click="showCreateModal = true" alt="Add Todo" class="logo" src="../assets/add.svg" width="35" height="35" />
+        <br/>Order: higher priority first, completed tasks last.
     </div>
 </template>
 

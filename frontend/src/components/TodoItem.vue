@@ -31,9 +31,9 @@ const itemStatus = computed(() => {
                {{  todo.displayDate() }}
             </div>
             <div class="actionlist">
-                <img @click="$emit('markTodoDone', todo)" alt="Add Todo" src="../assets/done.svg" class="actionlogo" />
-                <img @click="$emit('editTodo', todo)" src="../assets/edit.svg" class="actionlogo" />
-                <img @click="$emit('deleteTodo', todo)" src="../assets/delete.svg" class="actionlogo" />
+                <img @click="$emit('markTodoDone', todo)" alt="Add Todo" src="../assets/done.svg" class="actionlogo doneactionlogo" :class="todo.completed ? 'done-completed' : 'done-notcompleted'" />
+                <img @click="$emit('editTodo', todo)" src="../assets/edit.svg" class="actionlogo editactionlogo" />
+                <img @click="$emit('deleteTodo', todo)" src="../assets/delete.svg" class="actionlogo deleteactionlogo" />
             </div>
         </div>
     </div>
@@ -41,7 +41,7 @@ const itemStatus = computed(() => {
 
 <style scoped>
 .item {
-    border-radius: 8px;
+    border-radius: 4px;
     border-color: black;
     border-style: solid;
     border-width: 1px;
@@ -100,8 +100,20 @@ img {
 }
 
 @media (hover: hover) {
-  img:hover {
+  img.doneactionlogo:hover {
     background-color: hsla(160, 100%, 37%, 0.2);
   }
+
+  img.deleteactionlogo:hover {
+      background-color: hsla(0, 100%, 37%, 0.7);
+    }
+
+    img.editactionlogo:hover {
+            background-color: hsla(260, 100%, 55%, 0.2);
+        }
+}
+
+img.done-completed {
+    background-color: hsla(160, 100%, 37%, 0.2);
 }
 </style>
