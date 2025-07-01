@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, computed } from 'vue'
+import { ref, watch } from 'vue'
 import ToDo from '../model/ToDo.js'
 
 const createAPI=import.meta.env.VITE_API_URL + "/api/1.0/todos"

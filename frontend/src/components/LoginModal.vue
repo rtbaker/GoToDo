@@ -91,7 +91,7 @@ function switchPassword() {
         
             <div class="password-label">
                 <label for="psw">Password</label>
-                <img class="password-eye" :src="passwordEyeImage" @click="switchPassword"></img>
+                <img class="password-eye" :src="passwordEyeImage" @click="switchPassword"/>
             </div>
             <input v-model="password" :type="passwordFieldType" placeholder="Enter Password" name="psw" required>
 
