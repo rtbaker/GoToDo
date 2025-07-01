@@ -24,3 +24,19 @@ body {
     margin: 0 20px;
   }
 }
+
+.less-than-week-bg {
+    background-color: white;
+}
+
+.one-weeks-old-bg {
+    background-color: rgb(255, 184, 77);
+}
+
+.two-weeks-old-bg {
+    background-color: rgb(255, 102, 102);
+}
+
+.done-bg {
+  background-color: hsla(160, 100%, 37%, 0.4);
+}

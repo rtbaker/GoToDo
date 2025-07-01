@@ -2,8 +2,7 @@
 import { computed } from 'vue' 
 import ToDo from '../model/ToDo.js'
 
-//const props = defineProps({
-defineProps({
+const props = defineProps({
     todo: {
         type: ToDo,
         required: true
@@ -11,7 +10,21 @@ defineProps({
 })
 
 const itemStatus = computed(() => {
-  return 'normal'
+    if (props.todo.completed === true) {
+        return 'done-bg';
+    }
+
+    let age = (Date.now() - props.todo.createdAt) / 1000 / 60 / 60 / 24;   // age in days
+    
+    if (age <= 7) {
+        return 'less-than-week-bg';
+    }
+
+    if (age <= 14) {
+        return 'one-weeks-old-bg';
+    }
+
+    return 'two-weeks-old-bg';
 })
 
 </script>
@@ -22,13 +35,13 @@ const itemStatus = computed(() => {
             <h2>{{  todo.title }}</h2> Priority: {{ todo.priority }}
         </div>
 
-        <div class="content">
-            <p>{{ todo.description }}</p>
+        <div class="content description">
+            <pre>{{ todo.description }}</pre>
         </div>
 
         <div class="footer">
             <div class="info">
-               {{  todo.displayDate() }}
+               {{  todo.displayCreatedDate() }}
             </div>
             <div class="actionlist">
                 <img @click="$emit('markTodoDone', todo)" alt="Add Todo" src="../assets/done.svg" class="actionlogo doneactionlogo" :class="todo.completed ? 'done-completed' : 'done-notcompleted'" />
@@ -50,7 +63,6 @@ const itemStatus = computed(() => {
     padding: 5px;
     display: flex;
     flex-direction: column;
-    background-color: white;
 }
 
 .normal {
@@ -73,6 +85,10 @@ const itemStatus = computed(() => {
     margin-bottom: 15px;
 }
 
+.description {
+    background-color: rgba(220,220,220,1);
+    padding: 5px;
+}
 .actionlist {
     float: right;
     height: auto;

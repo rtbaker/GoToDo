@@ -7,8 +7,8 @@ import (
 	"net/http"
 
 	"github.com/alexedwards/scs/v2"
+	"github.com/go-chi/cors"
 	"github.com/go-playground/validator/v10"
-	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	gotodo "github.com/rtbaker/GoToDo/Model"
 )
@@ -37,11 +37,12 @@ func NewServer(sessionConfig SessionConfig) *Server {
 	}
 
 	// CORS setup, TODO: options in config file
-	corsOrigins := handlers.AllowedOrigins([]string{"http://localhost:5173"})
-	corsHeaders := handlers.AllowedHeaders([]string{"Accept", "Accept-Language", "Content-Type", "Content-Language", "Origin"})
-	corsMethods := handlers.AllowedMethods([]string{"GET", "POST", "OPTIONS", "DELETE", "PUT", "PATCH"})
-	corsCredentials := handlers.AllowCredentials()
-	corsHandler := handlers.CORS(corsOrigins, corsHeaders, corsMethods, corsCredentials)
+	corsHandler := cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:5173", "http://192.168.178.*:5173"},
+		AllowedMethods:   []string{"GET", "POST", "OPTIONS", "DELETE", "PUT", "PATCH"},
+		AllowedHeaders:   []string{"Accept", "Accept-Language", "Content-Type", "Content-Language", "Origin"},
+		AllowCredentials: true,
+	})
 
 	// No authenticated requests
 	noAuthRouter := s.router.PathPrefix("/").Subrouter()

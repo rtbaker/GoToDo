@@ -68,7 +68,7 @@ async function postCreateAPI() {
 
 }
 
-// Reset values
+// Reset values when showing modal
 watch(
   () => props.showCreate,
   () => {
