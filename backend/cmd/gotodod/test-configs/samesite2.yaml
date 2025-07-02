@@ -1,0 +1,5 @@
+session:
+  samesite: SameSiteDefaultMode
+
+http:
+  port: 1111

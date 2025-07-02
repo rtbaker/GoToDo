@@ -1,0 +1,5 @@
+session:
+  samesite: SameSiteStrictMode
+
+http:
+  port: 99999

@@ -76,7 +76,7 @@ func HttpSamesiteFromStringViperHook() mapstructure.DecodeHookFuncType {
 		}
 
 		samesiteString := data.(string)
-		fmt.Printf("SAME SITE STING: %s\n", samesiteString)
+
 		switch samesiteString {
 		case "SameSiteDefaultMode":
 			samesite = http.SameSiteDefaultMode
