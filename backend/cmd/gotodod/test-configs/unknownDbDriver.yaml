@@ -1,0 +1,3 @@
+database:
+  driver: NOPE
+  dsn: gotodo:gotodo@tcp(127.0.0.1:33061)/gotodo

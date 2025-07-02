@@ -44,7 +44,7 @@ func NewApplication() *Application {
 
 func (a *Application) Run(ctx context.Context) error {
 	// Connect to the DB
-	a.getDBServices()
+	a.GetDBService()
 
 	sessionCfg := http.SessionConfig{
 		IdleTimeout: a.Config.Session.IdleTimeout,
@@ -94,7 +94,7 @@ func (a *Application) Close() error {
 
 // Work out which DB driver we are using and get the right db connection
 // (Only mysql for now)
-func (a *Application) getDBServices() error {
+func (a *Application) GetDBService() error {
 	switch a.Config.Db.Driver {
 	case Mysql:
 		err := a.getMysqlServices()

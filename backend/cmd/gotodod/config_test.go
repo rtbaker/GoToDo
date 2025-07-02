@@ -72,3 +72,15 @@ func TestSessionSameSite5(t *testing.T) {
 		t.Errorf("session same site wrong, expected \"%d\", got \"%d\"", expected, app.Config.Session.SameSite)
 	}
 }
+
+func TestUnknownDbDriverOption(t *testing.T) {
+	viper.Reset()
+	app := NewApplication()
+	t.Setenv("APP_ENV", "unknownDbDriver")
+	app.LoadConfig([]string{"-config", "./test-configs"})
+
+	err := app.GetDBService()
+	if err == nil {
+		t.Errorf("expected an error from unknown db driver spec")
+	}
+}

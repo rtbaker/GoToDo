@@ -1,7 +1,10 @@
 default: develop
 
 test:
-	go test ./...
+	go test `go list ./... | grep -v GoToDo/Model`
+
+coverage:
+	go test -cover `go list ./... | grep -v GoToDo/Model`
 
 start-develop:
 	docker compose -f development/docker-compose-dev.yml up -d
