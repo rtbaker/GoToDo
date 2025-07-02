@@ -21,7 +21,7 @@ func run() int {
 	argsWithoutProg := os.Args[1:]
 
 	if len(argsWithoutProg) != 1 {
-		fmt.Fprintf(errOut, "Usage: %s <password>", command)
+		fmt.Fprintf(errOut, "Usage: %s <password>\n", command)
 		return 1
 	}
 

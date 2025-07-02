@@ -33,7 +33,7 @@ func TestTooFewArgs(t *testing.T) {
 
 	error := errOut.(*bytes.Buffer).String()
 
-	if error != "Usage: ./hashpassword <password>" {
+	if error != "Usage: ./hashpassword <password>\n" {
 		t.Errorf("Outputted error wrong for too few args")
 	}
 
