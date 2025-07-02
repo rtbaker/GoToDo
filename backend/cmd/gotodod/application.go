@@ -12,6 +12,7 @@ import (
 
 	"github.com/alexedwards/scs/mysqlstore"
 	"github.com/alexedwards/scs/v2"
+	"github.com/go-viper/mapstructure/v2"
 	gotodo "github.com/rtbaker/GoToDo/Model"
 	"github.com/rtbaker/GoToDo/database/mysql"
 	"github.com/rtbaker/GoToDo/http"
@@ -79,7 +80,13 @@ func (a *Application) Run(ctx context.Context) error {
 func (a *Application) Close() error {
 	if a.HTTPServer != nil {
 		if err := a.HTTPServer.Close(); err != nil {
-			return err
+			fmt.Fprintf(os.Stderr, "error closing http server: %s\n", err)
+		}
+	}
+
+	if a.DB != nil {
+		if err := a.DB.Close(); err != nil {
+			fmt.Fprintf(os.Stderr, "error closing DB server: %s\n", err)
 		}
 	}
 	return nil
@@ -168,7 +175,13 @@ func (a *Application) LoadConfig(args []string) error {
 		viper.Set(k, os.ExpandEnv(v))
 	}
 
-	err = viper.Unmarshal(&config)
+	hooks := mapstructure.ComposeDecodeHookFunc(
+		mapstructure.StringToTimeDurationHookFunc(),
+		mapstructure.StringToSliceHookFunc(","),
+		HttpSamesiteFromStringViperHook(),
+	)
+
+	err = viper.Unmarshal(&config, viper.DecodeHook(hooks))
 	if err != nil {
 		return fmt.Errorf("cannot unmarshall config: %s", err)
 	}

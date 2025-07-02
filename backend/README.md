@@ -21,7 +21,11 @@ Run `make stop-develop` to shut the MySQL Docker instance down.
 The API requires a valid user to login. Run `make hashpassword` to create the `bin/hashpassword` 
 console command for hashing users passwords. Then create an entry in the `users` table.
 
-TODO: better user management.
+## TODO
+
+- Tests!
+- Better JSON serialisation/group serialisation a la Symfony.
+- Better user management.
 
 ## Structure
 

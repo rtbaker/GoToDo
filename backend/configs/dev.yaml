@@ -4,3 +4,10 @@ database:
 
 http:
   port: 9090
+
+session:
+  samesite: SameSiteStrictMode
+  secure: false
+  cookieName: MYSESSIONID
+  idleTimeout: 2h
+  lifeTime: 24h
