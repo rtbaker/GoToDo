@@ -25,7 +25,7 @@ VITE_API_URL=http://192.168.178.217:9090
 ```
 
 NOTE: we use the machine IP address here rather than localhost so that we don't get into
-third party cookie hell.
+third party cookie hell when testing from non localhost.
 
 ```sh
 npm run dev
