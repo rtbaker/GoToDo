@@ -42,7 +42,7 @@ func NewServer(sessionConfig SessionConfig) *Server {
 		AllowedMethods:   []string{"GET", "POST", "OPTIONS", "DELETE", "PUT", "PATCH", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Accept-Language", "Content-Type", "Content-Language", "Origin"},
 		AllowCredentials: true,
-		Debug:            true,
+		Debug:            false,
 	})
 
 	// No authenticated requests

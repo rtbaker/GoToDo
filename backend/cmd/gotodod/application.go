@@ -12,8 +12,10 @@ import (
 
 	"github.com/alexedwards/scs/mysqlstore"
 	"github.com/alexedwards/scs/v2"
+	"github.com/alexedwards/scs/v2/memstore"
 	"github.com/go-viper/mapstructure/v2"
 	gotodo "github.com/rtbaker/GoToDo/Model"
+	"github.com/rtbaker/GoToDo/database/inmemory"
 	"github.com/rtbaker/GoToDo/database/mysql"
 	"github.com/rtbaker/GoToDo/http"
 	"github.com/spf13/viper"
@@ -44,7 +46,10 @@ func NewApplication() *Application {
 
 func (a *Application) Run(ctx context.Context) error {
 	// Connect to the DB
-	a.GetDBService()
+	err := a.GetDBService()
+	if err != nil {
+		return fmt.Errorf("error getting DB service: %s", err)
+	}
 
 	sessionCfg := http.SessionConfig{
 		IdleTimeout: a.Config.Session.IdleTimeout,
@@ -69,7 +74,7 @@ func (a *Application) Run(ctx context.Context) error {
 	a.HTTPServer.Logger = a.Logger
 
 	// And run our server
-	err := a.HTTPServer.Run()
+	err = a.HTTPServer.Run()
 	if err != nil {
 		return fmt.Errorf("error running http server: %s", err)
 	}
@@ -101,6 +106,11 @@ func (a *Application) GetDBService() error {
 		if err != nil {
 			return err
 		}
+	case Inmemory:
+		err := a.getInmemoryServices()
+		if err != nil {
+			return err
+		}
 	default:
 		return fmt.Errorf("unknown DB driver in config: %s", a.Config.Db.Driver)
 	}
@@ -119,8 +129,37 @@ func (a *Application) getMysqlServices() error {
 	a.UserService = mysql.NewUserService(a.DB)
 	a.TodoService = mysql.NewToDoService(a.DB)
 
-	// Sessions storage (in app db, could be moved to Redis or somesuch if required for performance)
+	// Sessions storage (in app db, could be moved to Redis or some such if required for performance)
 	a.SessionStore = mysqlstore.New(a.DB)
+
+	return nil
+}
+
+func (a *Application) getInmemoryServices() error {
+	userService := inmemory.NewUserService()
+	todoService := inmemory.NewToDoService()
+
+	if a.Config.Db.PreloadFile != "" {
+		a.DebugMessage("Pre loading inmemory DB from file: %s\n", a.Config.Db.PreloadFile)
+
+		err := userService.PreloadDataFromFile(a.Config.Db.PreloadFile)
+
+		if err != nil {
+			return fmt.Errorf("preloading inmemory user service error: %s", err)
+		}
+
+		err = todoService.PreloadDataFromFile(a.Config.Db.PreloadFile)
+
+		if err != nil {
+			return fmt.Errorf("preloading inmemory todo service error: %s", err)
+		}
+	}
+
+	a.UserService = userService
+	a.TodoService = todoService
+
+	// Sessions storage
+	a.SessionStore = memstore.New()
 
 	return nil
 }
@@ -169,7 +208,7 @@ func (a *Application) LoadConfig(args []string) error {
 
 	config := NewConfig()
 
-	// Do this so we can use ENV vars in the yaml
+	// Do this so we can use ENV var's in the yaml
 	for _, k := range viper.AllKeys() {
 		v := viper.GetString(k)
 		viper.Set(k, os.ExpandEnv(v))
@@ -183,7 +222,7 @@ func (a *Application) LoadConfig(args []string) error {
 
 	err = viper.Unmarshal(&config, viper.DecodeHook(hooks))
 	if err != nil {
-		return fmt.Errorf("cannot unmarshall config: %s", err)
+		return fmt.Errorf("cannot un-marshall config: %s", err)
 	}
 
 	a.Config = config

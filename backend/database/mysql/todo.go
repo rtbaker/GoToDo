@@ -39,7 +39,6 @@ func (s *ToDoService) FindToDoByID(ctx context.Context, id int) (*gotodo.ToDo, e
 
 // Find a users ToDo's
 func (s *ToDoService) FindByUser(ctx context.Context, userId int) ([]*gotodo.ToDo, error) {
-	// An albums slice to hold data from returned rows.
 	var todos []*gotodo.ToDo
 
 	rows, err := s.db.QueryContext(ctx, `SELECT * FROM todo WHERE userId = ?`, userId)

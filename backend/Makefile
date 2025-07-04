@@ -15,6 +15,9 @@ stop-develop:
 develop:
 	APP_ENV=dev go run ./cmd/gotodod -debug -config `pwd`/configs
 
+develop-inmemory:
+	APP_ENV=dev-inmemory go run ./cmd/gotodod -debug -config `pwd`/configs
+
 gotodod:
 	mkdir -p ./bin
 	go build -o ./bin/gotodod ./cmd/gotodod

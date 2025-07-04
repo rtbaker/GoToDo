@@ -16,12 +16,14 @@ import (
 type DatabaseDriver string
 
 const (
-	Mysql DatabaseDriver = "mysql"
+	Mysql    DatabaseDriver = "mysql"
+	Inmemory DatabaseDriver = "inmemory"
 )
 
 type DatabaseConfig struct {
-	Driver DatabaseDriver `mapstructure:"driver"`
-	DSN    string         `mapstructure:"dsn"`
+	Driver      DatabaseDriver `mapstructure:"driver"`
+	DSN         string         `mapstructure:"dsn"`
+	PreloadFile string         `mapstructure:"preloadFile"`
 }
 
 type HttpConfig struct {
