@@ -89,7 +89,17 @@ const itemStatus = computed(() => {
     background-color: rgba(220,220,220,1);
     padding: 5px;
 }
-.actionlist {
+
+/* https://stackoverflow.com/questions/248011/how-do-i-wrap-text-in-a-pre-tag */
+pre {
+    white-space: pre-wrap;       /* Since CSS 2.1 */
+    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+    white-space: -pre-wrap;      /* Opera 4-6 */
+    white-space: -o-pre-wrap;    /* Opera 7 */
+    word-wrap: break-word;       /* Internet Explorer 5.5+ */
+}
+
+.actionlist {https://stackoverflow.com/questions/248011/how-do-i-wrap-text-in-a-pre-tag
     float: right;
     height: auto;
     line-height: 1;
