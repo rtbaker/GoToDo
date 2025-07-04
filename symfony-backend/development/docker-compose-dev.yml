@@ -1,0 +1,18 @@
+services:
+  mysql8-symfony:
+    image: mysql:8.4
+    container_name: gotodo-symfony-mysql8
+    command: ['mysqld', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci', '--mysql-native-password=ON']
+    restart: unless-stopped
+    volumes:
+  #    - "./mysql/db:/var/lib/mysql"            # using ~ as . is shared with host and not writable
+  #    - "./mysql/backups:/tmp/db-backups"
+       - "./my.cnf:/etc/my.cnf"
+  #    - "./mysql/logs:/var/log/mysql"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: gotodo
+      MYSQL_USER: gotodo
+      MYSQL_PASSWORD: gotodo
+    ports:
+      - "33062:3306"
