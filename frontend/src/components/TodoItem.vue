@@ -99,7 +99,7 @@ pre {
     word-wrap: break-word;       /* Internet Explorer 5.5+ */
 }
 
-.actionlist {https://stackoverflow.com/questions/248011/how-do-i-wrap-text-in-a-pre-tag
+.actionlist {
     float: right;
     height: auto;
     line-height: 1;
