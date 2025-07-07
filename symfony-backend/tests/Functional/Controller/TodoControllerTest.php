@@ -65,4 +65,24 @@ class TodoControllerTest extends BaseWebTestCase
 
         $this->assertNotEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
     }
+
+    public function testCantUpdateSomeoneElsesTodo(): void
+        {
+            $this->loginUser('test1@test.com');
+    
+            $user = $this->userRepository->findOneBy(['email' => 'test2@test.com']);
+            $todos = $this->todoRepository->findByUser($user);
+    
+            $this->assertGreaterThan(0, count($todos));
+    
+            $todoToDelete = $todos[0];
+    
+            $req = $this->jsonRequest(
+                sprintf("%s/%d", self::TODO_API, $todoToDelete->getId()),
+                ['title' => 'new title'],
+                'PATCH'
+            );
+    
+            $this->assertNotEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+        }
 }
