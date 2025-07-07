@@ -85,7 +85,7 @@
 					}
 				},
 				"url": {
-					"raw": "{{url}}/api/1.0/todos",
+					"raw": "{{url}}/api/1.0/todos?XDEBUG_TRIGGER=yes",
 					"host": [
 						"{{url}}"
 					],
@@ -93,6 +93,12 @@
 						"api",
 						"1.0",
 						"todos"
+					],
+					"query": [
+						{
+							"key": "XDEBUG_TRIGGER",
+							"value": "yes"
+						}
 					]
 				}
 			},

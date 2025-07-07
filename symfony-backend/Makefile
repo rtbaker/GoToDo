@@ -18,5 +18,5 @@ stop-develop:
 	docker compose -f development/docker-compose-dev.yml stop
 	
 develop:
-	symfony server:start --allow-all-ip --port=9090
+	XDEBUG_MODE=debug symfony server:start --allow-all-ip --port=9090
 
