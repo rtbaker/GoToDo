@@ -125,7 +125,7 @@ final class TodoController extends AbstractController
         response: 200,
         description: 'Todo updated successfully',
         content: new OA\JsonContent(ref: new Model(type: ToDo::class, groups: ['read']))
-    )]  
+    )]
     public function update(
         #[CurrentUser] User $user,
         Request $request,
@@ -179,7 +179,7 @@ final class TodoController extends AbstractController
         description: 'ID of the todo',
         in: 'path',
         schema: new OA\Schema(type: 'integer', readOnly: true)
-    )] 
+    )]
     public function delete(
         #[CurrentUser] User $user,
         Request $request,

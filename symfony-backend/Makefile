@@ -5,7 +5,7 @@ fixcs:
 
 test:
 	vendor/bin/phpcs
-	vendor/bin/phpstan
+	vendor/bin/phpstan --memory-limit=512M
 	bin/phpunit
 
 coverage:
