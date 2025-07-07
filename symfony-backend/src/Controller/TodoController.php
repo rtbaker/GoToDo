@@ -7,18 +7,20 @@ namespace App\Controller;
 use Exception;
 use App\Entity\ToDo;
 use App\Entity\User;
+use OpenApi\Attributes as OA;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use App\Repository\ToDoRepository;
-use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\DBAL\Exception\DriverException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Security\Http\Attribute\CurrentUser;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
  #[Route('/api/1.0/todos', name: 'app_todo_')]
 final class TodoController extends AbstractController
@@ -34,6 +36,14 @@ final class TodoController extends AbstractController
     }
 
     #[Route('', name: 'read', methods: ['GET'])]
+    #[OA\Response(
+        response: 200,
+        description: 'Todo created successfully',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(new Model(type: ToDo::class, groups: ['read']))
+        )
+    )]
     public function read(#[CurrentUser] User $user): Response
     {
         $todos = $this->toDoRepository->findByUser($user);
@@ -47,6 +57,18 @@ final class TodoController extends AbstractController
     }
 
     #[Route('', name: 'create', methods: ['POST'])]
+    #[OA\RequestBody(
+        description: 'JSON request body.',
+        required: true,
+        content: new OA\JsonContent(
+            ref: new Model(type: ToDo::class, groups: ['create'])
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Todo created successfully',
+        content: new OA\JsonContent(ref: new Model(type: ToDo::class, groups: ['read']))
+    )]
     public function create(
         #[CurrentUser] User $user,
         Request $request
@@ -86,6 +108,24 @@ final class TodoController extends AbstractController
     }
 
     #[Route('/{todoId}', name: 'update', methods: ['PATCH'], requirements: ['todoId' => '\d+'])]
+    #[OA\Parameter(
+        name: 'todoId',
+        description: 'ID of the todo',
+        in: 'path',
+        schema: new OA\Schema(type: 'integer', readOnly: true)
+    )]
+    #[OA\RequestBody(
+        description: 'JSON request body.',
+        required: true,
+        content: new OA\JsonContent(
+            ref: new Model(type: ToDo::class, groups: ['update'])
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Todo updated successfully',
+        content: new OA\JsonContent(ref: new Model(type: ToDo::class, groups: ['read']))
+    )]  
     public function update(
         #[CurrentUser] User $user,
         Request $request,
@@ -134,6 +174,12 @@ final class TodoController extends AbstractController
     }
 
     #[Route('/{todoId}', name: 'delete', methods: ['DELETE'], requirements: ['todoId' => '\d+'])]
+    #[OA\Parameter(
+        name: 'todoId',
+        description: 'ID of the todo',
+        in: 'path',
+        schema: new OA\Schema(type: 'integer', readOnly: true)
+    )] 
     public function delete(
         #[CurrentUser] User $user,
         Request $request,
