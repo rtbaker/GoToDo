@@ -8,6 +8,12 @@ test:
 	vendor/bin/phpstan --memory-limit=512M
 	bin/phpunit
 
+setup-test-db:
+	bin/console --env=test doctrine:database:drop --if-exists --force
+	bin/console --env=test doctrine:database:create --if-not-exists
+	bin/console --env=test doc:mig:mig -n
+	bin/console --env=test doctrine:fixtures:load -n
+	
 coverage:
 	
 
