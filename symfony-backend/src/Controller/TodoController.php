@@ -18,6 +18,7 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
  #[Route('/api/1.0/todos', name: 'app_todo_')]
 final class TodoController extends AbstractController
@@ -27,7 +28,8 @@ final class TodoController extends AbstractController
     public function __construct(
         private ToDoRepository $toDoRepository,
         private SerializerInterface $serializer,
-        private EntityManagerInterface $entityManager
+        private EntityManagerInterface $entityManager,
+        private ValidatorInterface $validator
     ) {
     }
 
@@ -58,6 +60,11 @@ final class TodoController extends AbstractController
             );
 
             $todo->setUser($user);
+
+            $errors = $this->validator->validate($todo);
+            if (count($errors)) {
+                $this->throwValidatorException($errors);
+            }
 
             $this->toDoRepository->add($todo, true);
         } catch (DriverException $e) {
@@ -101,6 +108,11 @@ final class TodoController extends AbstractController
                     AbstractNormalizer::OBJECT_TO_POPULATE => $todo
                 ]
             );
+
+            $errors = $this->validator->validate($todo);
+            if (count($errors)) {
+                $this->throwValidatorException($errors);
+            }
 
             $this->entityManager->flush();
         } catch (DriverException $e) {

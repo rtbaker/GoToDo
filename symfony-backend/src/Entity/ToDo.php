@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use App\Repository\ToDoRepository;
+use Symfony\Component\Validator\Constraints as Assert;
 use DateTimeImmutable;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\ToDoRepository;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: ToDoRepository::class)]
@@ -25,10 +26,22 @@ class ToDo
 
     #[ORM\Column(length: 255)]
     #[Groups(['read', 'create', 'update'])]
+    #[Assert\NotNull()]
+    #[Assert\Length(
+        min: 2,  // arbitrary requirement
+        max: 255,
+        minMessage: 'title must be at least {{ limit }} characters long',
+        maxMessage: 'title cannot be longer than {{ limit }} characters',
+    )]
     private string $title;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Groups(['read', 'create', 'update'])]
+    #[Assert\Length(
+        min: 0,
+        minMessage: 'Your description must be at least {{ limit }} characters long',
+    )]
+    #[Assert\NotNull()]
     private ?string $description = null;
 
     #[ORM\Column]
